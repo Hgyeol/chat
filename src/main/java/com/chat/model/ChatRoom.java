@@ -1,5 +1,6 @@
 package com.chat.model;
 
+import com.chat.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,12 +23,16 @@ public class ChatRoom {
 
     private String name;
 
+    @ManyToOne
+    private User user;
+
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> messages = new ArrayList<>();
 
-    public ChatRoom(String roomId, String name) {
+    public ChatRoom(String roomId, String name, User user) {
         this.roomId = roomId;
         this.name = name;
+        this.user = user;
     }
 
     public Long getId() {

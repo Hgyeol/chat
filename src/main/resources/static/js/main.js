@@ -1,17 +1,16 @@
 'use strict';
 
-var usernamePage = document.querySelector('#username-page');
+var roomSelectionPage = document.querySelector('#room-selection-page');
 var chatPage = document.querySelector('#chat-page');
-var usernameForm = document.querySelector('#usernameForm');
 var messageForm = document.querySelector('#messageForm');
 var messageInput = document.querySelector('#message');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 var roomListElement = document.querySelector('#room-list');
 var chatRoomNameElement = document.querySelector('#chat-room-name');
+var startChattingButton = document.querySelector('#start-chatting');
 
 var stompClient = null;
-var username = null;
 var selectedRoomId = null;
 
 var colors = [
@@ -69,29 +68,19 @@ function createRoom(event) {
 }
 
 function connect(event) {
-    username = document.querySelector('#name').value.trim();
-
     if (!selectedRoomId) {
         alert('Please select a room first.');
         event.preventDefault();
         return;
     }
 
-    if (!username) {
-        alert('Please enter a username.');
-        event.preventDefault();
-        return;
-    }
+    roomSelectionPage.classList.add('hidden');
+    chatPage.classList.remove('hidden');
 
-    if(username && selectedRoomId) {
-        usernamePage.classList.add('hidden');
-        chatPage.classList.remove('hidden');
+    var socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
 
-        var socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-
-        stompClient.connect({}, onConnected, onError);
-    }
+    stompClient.connect({}, onConnected, onError);
     event.preventDefault();
 }
 
@@ -111,7 +100,7 @@ function onConnected() {
             // Tell your username to the server
             stompClient.send('/app/chat/' + selectedRoomId + '/addUser',
                 {},
-                JSON.stringify({sender: username, type: 'JOIN'})
+                JSON.stringify({type: 'JOIN'})
             )
 
             connectingElement.classList.add('hidden');
@@ -130,7 +119,6 @@ function sendMessage(event) {
 
     if(messageContent && stompClient) {
         var chatMessage = {
-            sender: username,
             content: messageInput.value,
             type: 'CHAT'
         };
@@ -195,7 +183,7 @@ function leaveChat(event) {
         stompClient.disconnect();
     }
     chatPage.classList.add('hidden');
-    usernamePage.classList.remove('hidden');
+    roomSelectionPage.classList.remove('hidden');
     messageArea.innerHTML = '';
     selectedRoomId = null;
     document.querySelectorAll('#room-list li').forEach(el => el.classList.remove('active'));
@@ -203,7 +191,7 @@ function leaveChat(event) {
 }
 
 document.addEventListener('DOMContentLoaded', loadRooms);
-usernameForm.addEventListener('submit', connect, true)
+startChattingButton.addEventListener('click', connect, true)
 messageForm.addEventListener('submit', sendMessage, true);
 createRoomForm.addEventListener('submit', createRoom, true);
 leaveButton.addEventListener('click', leaveChat, true);

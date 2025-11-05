@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <title>Spring Boot WebSocket Chat Application</title>
@@ -10,13 +10,26 @@
     <h2>Sorry! Your browser doesn't support Javascript</h2>
 </noscript>
 
-<div id="username-page">
+<div id="room-selection-page">
     <div class="username-page-container">
-        <h1 class="title">Select a room and enter your username</h1>
+        <h1 class="title">Select a room or create a new one</h1>
+        <div sec:authorize="isAuthenticated()">
+            <p>Welcome, <span sec:authentication="name"></span>!</p>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="accent">Logout</button>
+            </form>
+        </div>
+        <div sec:authorize="isAnonymous()">
+            <a th:href="@{/login}" class="accent button">Login</a>
+        </div>
 
         <div id="room-list-container">
             <h2>Available Rooms</h2>
             <ul id="room-list"></ul>
+        </div>
+
+        <div class="form-group">
+            <button id="start-chatting" type="button" class="accent username-submit">Start Chatting</button>
         </div>
 
         <div id="create-room-container">
@@ -26,19 +39,10 @@
                     <input type="text" id="room-name" placeholder="Room name" autocomplete="off" class="form-control" />
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="accent">Create Room</button>
+                    <button type="submit" class="accent username-submit">Create Room</button>
                 </div>
             </form>
         </div>
-
-        <form id="usernameForm" name="usernameForm">
-            <div class="form-group">
-                <input type="text" id="name" placeholder="Username" autocomplete="off" class="form-control" />
-            </div>
-            <div class="form-group">
-                <button type="submit" class="accent username-submit">Start Chatting</button>
-            </div>
-        </form>
     </div>
 </div>
 
