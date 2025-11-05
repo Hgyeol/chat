@@ -96,6 +96,7 @@ function onConnected() {
             messages.forEach(message => {
                 displayMessage(message.type, message.sender, message.content);
             });
+            messageArea.scrollTop = messageArea.scrollHeight;
 
             // Tell your username to the server
             stompClient.send('/app/chat/' + selectedRoomId + '/addUser',
@@ -157,12 +158,12 @@ function displayMessage(type, sender, content) {
     messageElement.appendChild(textElement);
 
     messageArea.appendChild(messageElement);
-    messageArea.scrollTop = messageArea.scrollHeight;
 }
 
 function onMessageReceived(payload) {
     var message = JSON.parse(payload.body);
     displayMessage(message.type, message.sender, message.content);
+    messageArea.scrollTop = messageArea.scrollHeight;
 }
 
 
